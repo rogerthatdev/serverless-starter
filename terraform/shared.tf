@@ -6,15 +6,12 @@ resource "google_artifact_registry_repository" "docker_images" {
 }
 
 output "artifact_registry_url" {
-    value = format("%s-docker.pkg.dev/%s/%s", google_artifact_registry_repository.docker_images.location, var.project_id, google_artifact_registry_repository.docker_images.name)
+  value = format("%s-docker.pkg.dev/%s/%s", google_artifact_registry_repository.docker_images.location, var.project_id, google_artifact_registry_repository.docker_images.name)
 }
-# TODO: add IAM binding to above repo for cloud build service account(s)
-# resource "google_artifact_registry_repository_iam_binding" "binding" {
-#   project = google_artifact_registry_repository.my-repo.project
-#   location = google_artifact_registry_repository.my-repo.location
-#   repository = google_artifact_registry_repository.my-repo.name
-#   role = "roles/artifactregistry.reader"
-#   members = [
-#     "user:jane@example.com",
-#   ]
-# }
+
+resource "google_artifact_registry_repository_iam_binding" "cloudbuilders" {
+  repository = google_artifact_registry_repository.docker_images.name
+  location   = google_artifact_registry_repository.docker_images.location
+  role       = "roles/artifactregistry.writer"
+  members    = local.cloudbuilders
+}
