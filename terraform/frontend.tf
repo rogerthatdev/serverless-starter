@@ -60,3 +60,33 @@ resource "google_cloudbuild_trigger" "frontend_build_trigger" {
   }
   service_account = google_service_account.frontend_cloudbuilder.id
 }
+
+resource "google_cloud_run_service" "frontend" {
+  name     = "serverless-starter-frontend"
+  location = "us-west2"
+
+  template {
+    spec {
+      containers {
+        image = "${local.artifact_registry_url}/serverless-starter-frontend@sha256:38d14eaee861c4b5a25d5b02ea31754661fb02ce2923a443e20bc7867681f5fe"
+      }
+    }
+  }
+}
+# Blocked by org policy
+# data "google_iam_policy" "noauth" {
+#   binding {
+#     role = "roles/run.invoker"
+#     members = [
+#       "allUsers",
+#     ]
+#   }
+# }
+
+# resource "google_cloud_run_service_iam_policy" "noauth" {
+#   location    = google_cloud_run_service.frontend.location
+#   project     = google_cloud_run_service.frontend.project
+#   service     = google_cloud_run_service.frontend.name
+
+#   policy_data = data.google_iam_policy.noauth.policy_data
+# }
