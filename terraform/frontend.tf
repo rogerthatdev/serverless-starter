@@ -29,14 +29,14 @@ resource "google_cloudbuild_trigger" "frontend_build_trigger" {
 
   build {
     images = [
-      "us-west2-docker.pkg.dev/citric-sprite-357416/serverless-starter-repo/serverless-starter-frontend:$COMMIT_SHA",
+      "us-west2-docker.pkg.dev/citric-sprite-357416/serverless-starter-repo/serverless-starter-frontend:latest",
     ]
     logs_bucket = "${google_storage_bucket.cloudbuild_logs.url}/logs"
     step {
       args = [
         "build",
         "-t",
-        "${local.artifact_registry_url}/serverless-starter-frontend:$COMMIT_SHA",
+        "${local.artifact_registry_url}/serverless-starter-frontend:latest",
         "-f",
         "Dockerfile",
         ".",
@@ -60,3 +60,33 @@ resource "google_cloudbuild_trigger" "frontend_build_trigger" {
   }
   service_account = google_service_account.frontend_cloudbuilder.id
 }
+
+resource "google_cloud_run_service" "frontend" {
+  name     = "serverless-starter-frontend"
+  location = "us-west2"
+
+  template {
+    spec {
+      containers {
+        image = "${local.artifact_registry_url}/serverless-starter-frontend:latest"
+      }
+    }
+  }
+}
+# Blocked by org policy
+# data "google_iam_policy" "noauth" {
+#   binding {
+#     role = "roles/run.invoker"
+#     members = [
+#       "allUsers",
+#     ]
+#   }
+# }
+
+# resource "google_cloud_run_service_iam_policy" "noauth" {
+#   location    = google_cloud_run_service.frontend.location
+#   project     = google_cloud_run_service.frontend.project
+#   service     = google_cloud_run_service.frontend.name
+
+#   policy_data = data.google_iam_policy.noauth.policy_data
+# }
