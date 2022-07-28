@@ -29,14 +29,14 @@ resource "google_cloudbuild_trigger" "frontend_build_trigger" {
 
   build {
     images = [
-      "us-west2-docker.pkg.dev/citric-sprite-357416/serverless-starter-repo/serverless-starter-frontend:$COMMIT_SHA",
+      "us-west2-docker.pkg.dev/citric-sprite-357416/serverless-starter-repo/serverless-starter-frontend:latest",
     ]
     logs_bucket = "${google_storage_bucket.cloudbuild_logs.url}/logs"
     step {
       args = [
         "build",
         "-t",
-        "${local.artifact_registry_url}/serverless-starter-frontend:$COMMIT_SHA",
+        "${local.artifact_registry_url}/serverless-starter-frontend:latest",
         "-f",
         "Dockerfile",
         ".",
@@ -68,7 +68,7 @@ resource "google_cloud_run_service" "frontend" {
   template {
     spec {
       containers {
-        image = "${local.artifact_registry_url}/serverless-starter-frontend@sha256:38d14eaee861c4b5a25d5b02ea31754661fb02ce2923a443e20bc7867681f5fe"
+        image = "${local.artifact_registry_url}/serverless-starter-frontend:latest"
       }
     }
   }
