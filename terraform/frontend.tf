@@ -17,11 +17,9 @@ resource "google_storage_bucket" "cloudbuild_logs" {
 }
 
 resource "google_storage_bucket_iam_binding" "cloudbuild_log_writers" {
-  bucket = google_storage_bucket.cloudbuild_logs.name
-  role   = "roles/storage.admin"
-  members = [
-    "serviceAccount:${google_service_account.frontend_cloudbuilder.email}"
-  ]
+  bucket    = google_storage_bucket.cloudbuild_logs.name
+  role      = "roles/storage.admin"
+  members   = local.cloudbuilders
 }
 
 resource "google_cloudbuild_trigger" "frontend_build_trigger" {
