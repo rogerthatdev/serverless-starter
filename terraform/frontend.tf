@@ -59,12 +59,17 @@ resource "google_cloudbuild_trigger" "frontend_build_trigger" {
   service_account = google_service_account.frontend_cloudbuilder.id
 }
 
+resource "google_service_account" "frontend_runner" {
+  account_id = "frontend-runner"
+}
+
 resource "google_cloud_run_service" "frontend" {
   name     = "serverless-starter-frontend"
   location = "us-west2"
 
   template {
     spec {
+      service_account_name = google_service_account.frontend_runner.email
       containers {
         image = "${local.artifact_registry_url}/serverless-starter-frontend:latest"
       }
