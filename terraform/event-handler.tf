@@ -46,12 +46,17 @@ resource "google_cloudbuild_trigger" "event_handler_build_trigger" {
   service_account = google_service_account.event_handler_cloudbuilder.id
 }
 
+resource "google_service_account" "event_handler_runner" {
+  account_id = "event-handler-runner"
+}
+
 resource "google_cloud_run_service" "event_handler" {
   name     = "serverless-starter-event-handler"
   location = "us-west2"
 
   template {
     spec {
+      service_account_name = google_service_account.event_handler_runner.email
       containers {
         image = "${local.artifact_registry_url}/serverless-starter-event-handler:latest"
       }
